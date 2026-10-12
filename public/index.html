@@ -1,0 +1,108 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chart Pattern Hub</title>
+<style>
+:root{--bg:#fff;--fg:#1a1a1a;--mut:#666;--card:#f3f4f6;--ac:#0b6bcb;--up:#12805c;--dn:#c02b2b}
+@media(prefers-color-scheme:dark){:root{--bg:#14161a;--fg:#e8e8e8;--mut:#9aa0a6;--card:#1f2228;--ac:#5aa2f0;--up:#3ec59a;--dn:#f07272}}
+*{box-sizing:border-box}body{margin:0;font:15px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--fg)}
+main{max-width:900px;margin:auto;padding:20px}.mut{color:var(--mut)}h1{margin:.2em 0}
+nav{display:flex;gap:8px;align-items:center;margin:16px 0}
+button{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid var(--mut);background:var(--card);color:var(--fg);cursor:pointer}
+button.on,button.go{background:var(--ac);color:#fff;border-color:var(--ac)}
+label{display:block;margin:10px 0 2px;font-weight:600}
+input,select,textarea{width:100%;font:inherit;padding:8px;border-radius:8px;border:1px solid var(--mut);background:var(--bg);color:var(--fg)}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:16px 0}
+.card{background:var(--card);border-radius:12px;padding:14px}.big{font-size:22px;font-weight:700}
+.up{color:var(--up)}.dn{color:var(--dn)}.warn{background:var(--card);border-left:4px solid var(--dn);padding:10px;border-radius:6px}
+.thumbs{display:flex;gap:10px;overflow-x:auto}.thumbs figure{margin:0;min-width:200px;font-size:13px}.thumbs img{width:200px;border-radius:8px}
+#prev{max-width:100%;max-height:220px;margin-top:10px;border-radius:8px}[hidden]{display:none!important}
+</style></head><body><main>
+<h1>Chart Pattern Hub</h1>
+<p class="mut">Crowdsourced chart-pattern library. Upload a chart to see how the most similar community-submitted patterns were set up. <b>Educational only, not financial advice.</b> Submissions are public and unverified, and matching is a simple shape comparison, so treat results as a rough statistical summary, not a forecast.</p>
+<nav><button id="t1" class="on">Analyze a chart</button><button id="t2">Contribute a pattern</button><span id="cnt" class="mut"></span></nav>
+
+<section id="p1">
+<label>Chart image (screenshot of price action)</label><input id="f1" type="file" accept="image/*">
+<label>Entry price (optional, to convert % levels into prices)</label><input id="entry" type="number" step="any" min="0">
+<img id="prev" alt="" hidden><p><button class="go" id="run">Identify pattern</button></p><div id="res"></div>
+</section>
+
+<section id="p2" hidden>
+<label>Chart image showing the pattern *</label><input id="f2" type="file" accept="image/*">
+<div class="row"><div><label>Pattern name *</label><input id="name" maxlength="40" placeholder="e.g. Bull flag"></div>
+<div><label>Trade direction *</label><select id="dir"><option value="long">Long (up)</option><option value="short">Short (down)</option></select></div>
+<div><label>Asset / timeframe</label><input id="asset" maxlength="30" placeholder="e.g. EURUSD 4h"></div></div>
+<div class="row"><div><label>Stop-loss, % from entry *</label><input id="stop" type="number" step="any" min="0.01" max="100"></div>
+<div><label>Profit target, % from entry *</label><input id="target" type="number" step="any" min="0.01" max="100"></div>
+<div><label>Outcome</label><select id="outcome"><option value="unknown">Unknown</option><option value="target">Hit target</option><option value="stop">Hit stop</option></select></div></div>
+<label>Technical specs / notes</label><textarea id="notes" rows="3" maxlength="500" placeholder="Indicators, volume, entry trigger..."></textarea>
+<input id="hp" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+<p class="mut">By submitting you agree your data and image become public. Don't upload anything you don't have the right to share.</p>
+<p><button class="go" id="send">Submit to public database</button> <span id="msg"></span></p>
+</section>
+
+<script>
+const $=s=>document.querySelector(s),N=48;
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let db=[];
+async function refresh(){try{db=await (await fetch('/api/patterns')).json();$('#cnt').textContent=db.length+' patterns in database'}catch{$('#cnt').textContent='Database unavailable'}}
+refresh();
+$('#t1').onclick=()=>tab(1);$('#t2').onclick=()=>tab(2);
+function tab(n){$('#p1').hidden=n!=1;$('#p2').hidden=n!=2;$('#t1').classList.toggle('on',n==1);$('#t2').classList.toggle('on',n==2)}
+
+// Shape descriptor: for each of 48 columns, the ink-weighted vertical centroid (the price path), z-normalised.
+async function describe(file){
+  const img=await createImageBitmap(file),W=240,H=160,c=document.createElement('canvas');c.width=W;c.height=H;
+  const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(img,0,0,W,H);
+  const d=x.getImageData(0,0,W,H).data,g=new Float32Array(W*H);
+  for(let i=0;i<W*H;i++)g[i]=.299*d[i*4]+.587*d[i*4+1]+.114*d[i*4+2];
+  const bg=[...g].sort((a,b)=>a-b)[g.length>>1];let cur=[];
+  for(let k=0;k<N;k++){let s=0,m=0;for(let xx=Math.floor(k*W/N);xx<Math.floor((k+1)*W/N);xx++)for(let y=0;y<H;y++){const w=Math.abs(g[y*W+xx]-bg);if(w>40){s+=w*(H-y);m+=w}}cur.push(m?s/m/H:null)}
+  if(cur.filter(v=>v!==null).length<N/2)throw new Error('Could not find a chart line in this image.');
+  let last=cur.find(v=>v!==null);cur=cur.map(v=>(v===null?v=last:last=v,v));
+  const mu=cur.reduce((a,b)=>a+b)/N,sd=Math.sqrt(cur.reduce((a,b)=>a+(b-mu)**2,0)/N)||1;
+  const t=document.createElement('canvas');t.width=200;t.height=120;t.getContext('2d').drawImage(img,0,0,200,120);
+  return{curve:cur.map(v=>(v-mu)/sd),thumb:t.toDataURL('image/jpeg',.6)};
+}
+const dot=(a,b)=>a.reduce((s,v,i)=>s+v*b[i],0)/N;
+
+$('#f1').onchange=e=>{const f=e.target.files[0];if(f){$('#prev').src=URL.createObjectURL(f);$('#prev').hidden=false}};
+$('#run').onclick=async()=>{
+  const f=$('#f1').files[0],out=$('#res');if(!f){out.textContent='Choose a chart image first.';return}
+  out.textContent='Analyzing…';
+  try{await refresh();const {curve}=await describe(f);out.innerHTML=await render(curve,db,parseFloat($('#entry').value))}
+  catch(e){out.textContent=e.message}
+};
+async function render(q,db,entry){
+  const m=db.map(r=>({r,s:dot(q,r.curve)})).filter(o=>o.s>.5).sort((a,b)=>b.s-a.s).slice(0,7);
+  if(!m.length)return'<p>No similar patterns in the database yet. Contribute one to help build it.</p>';
+  const vote=f=>{const v={};m.forEach(o=>{const k=f(o.r);v[k]=(v[k]||0)+o.s**2});const t=Object.values(v).reduce((a,b)=>a+b);return Object.entries(v).sort((a,b)=>b[1]-a[1])[0].map?Object.entries(v).sort((a,b)=>b[1]-a[1]).map(([k,x])=>[k,x/t])[0]:0};
+  const [pk,pp]=vote(r=>r.name.toLowerCase()),[dir,dp]=vote(r=>r.dir);
+  const pname=m.find(o=>o.r.name.toLowerCase()===pk).r.name;
+  const same=m.filter(o=>o.r.dir===dir),w=same.reduce((a,o)=>a+o.s,0),avg=k=>same.reduce((a,o)=>a+o.r[k]*o.s,0)/w;
+  const stop=avg('stop'),tg=avg('target'),kn=same.filter(o=>o.r.outcome!=='unknown'),kw=kn.reduce((a,o)=>a+o.s,0);
+  const hit=kn.length?kn.filter(o=>o.r.outcome==='target').reduce((a,o)=>a+o.s,0)/kw:null,L=dir==='long';
+  const px=(p,up)=>isFinite(entry)&&entry>0?` (${(entry*(1+(up?1:-1)*p/100)).toFixed(entry<10?4:2)})`:'';
+  let h=`<div class="cards">
+  <div class="card"><div class="mut">Identified pattern</div><div class="big">${esc(pname)}</div><div>${(pp*100).toFixed(0)}% of weighted matches · best match ${(m[0].s*100).toFixed(0)}%</div></div>
+  <div class="card"><div class="mut">Likely movement (per crowd data)</div><div class="big ${L?'up':'dn'}">${L?'▲ Up':'▼ Down'} ~${tg.toFixed(1)}%</div><div>${(dp*100).toFixed(0)}% of weighted matches agree${hit!==null?` · ${(hit*100).toFixed(0)}% of known outcomes hit target`:''}</div></div>
+  <div class="card"><div class="mut">Suggested levels (weighted average)</div><div>Stop-loss: <b>${stop.toFixed(1)}%</b>${px(stop,!L)}</div><div>Profit target: <b>${tg.toFixed(1)}%</b>${px(tg,L)}</div><div>Reward:risk <b>${(tg/stop).toFixed(2)}</b></div></div></div>`;
+  if(m.length<5)h+=`<p class="warn">Only ${m.length} similar pattern${m.length>1?'s':''} found. Treat this as very low confidence.</p>`;
+  h+=`<h3>Closest matches</h3><div class="thumbs">${m.slice(0,5).map((o,i)=>`<figure id="m${i}"><div class="mut">Loading…</div><figcaption>${esc(o.r.name)} · ${(o.s*100).toFixed(0)}% · ${o.r.dir} · stop ${o.r.stop}% / target ${o.r.target}%${o.r.asset?' · '+esc(o.r.asset):''}${o.r.notes?'<br>'+esc(o.r.notes):''}</figcaption></figure>`).join('')}</div>
+  <p class="mut">Not financial advice. Figures are averages of unverified user submissions; past patterns do not predict future prices.</p>`;
+  setTimeout(()=>m.slice(0,5).forEach(async(o,i)=>{try{const r=await (await fetch('/api/patterns?id='+o.r.id)).json(),el=$('#m'+i);
+    if(/^data:image\/jpeg;base64,/.test(r.thumb)){const im=new Image();im.src=r.thumb;im.alt=r.name;el.firstChild.replaceWith(im)}}catch{}}),0);
+  return h;
+}
+
+$('#send').onclick=async()=>{
+  const f=$('#f2').files[0],msg=$('#msg');if(!f||!$('#name').value.trim()||!$('#stop').value||!$('#target').value){msg.textContent='Fill the required fields.';return}
+  msg.textContent='Uploading…';
+  try{const {curve,thumb}=await describe(f);
+    const r=await fetch('/api/patterns',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({
+      name:$('#name').value,dir:$('#dir').value,asset:$('#asset').value,stop:$('#stop').value,target:$('#target').value,
+      outcome:$('#outcome').value,notes:$('#notes').value,hp:$('#hp').value,curve,thumb})});
+    const j=await r.json();msg.textContent=r.ok?'Thanks! Pattern added.':(j.error||'Failed');if(r.ok){refresh();['name','stop','target','asset','notes','f2'].forEach(i=>$('#'+i).value='')}}
+  catch(e){msg.textContent=e.message}
+};
+</script></main></body></html>

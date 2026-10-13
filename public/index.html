@@ -1,0 +1,178 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chart Pattern Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+:root{--bg:#f1f5f9;--card:#fff;--fg:#0f172a;--mut:#64748b;--line:#e2e8f0;--ac:#4f46e5;--acs:#eef2ff;--up:#059669;--dn:#dc2626;--sh:0 1px 2px rgba(15,23,42,.06),0 6px 18px rgba(15,23,42,.06)}
+@media(prefers-color-scheme:dark){:root{--bg:#0b1020;--card:#131a2e;--fg:#e5e9f5;--mut:#94a3c0;--line:#243049;--ac:#818cf8;--acs:#1b2247;--up:#34d399;--dn:#f87171;--sh:none}}
+*{box-sizing:border-box}body{margin:0;font:15px/1.55 Inter,system-ui,sans-serif;background:var(--bg);color:var(--fg)}
+header{background:var(--card);border-bottom:1px solid var(--line)}.w{max-width:960px;margin:auto;padding:0 20px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 0}
+.logo{font-weight:700;font-size:18px;letter-spacing:-.01em}.logo b{color:var(--ac)}
+.pill{font-size:13px;color:var(--mut);background:var(--bg);border:1px solid var(--line);padding:3px 10px;border-radius:99px}
+.seg{display:inline-flex;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:3px;margin:22px 0 16px}
+.seg button{font:inherit;font-weight:500;border:0;background:none;color:var(--mut);padding:7px 18px;border-radius:7px;cursor:pointer}
+.seg button.on{background:var(--card);color:var(--fg);box-shadow:var(--sh)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);padding:22px;margin-bottom:16px}
+h2{margin:0 0 4px;font-size:18px}.mut{color:var(--mut)}
+.drop{display:block;margin-top:16px;border:2px dashed var(--line);border-radius:12px;padding:38px 16px;text-align:center;cursor:pointer;transition:.15s}
+.drop:hover,.drop.over{border-color:var(--ac);background:var(--acs)}.drop b{color:var(--ac)}.drop input{display:none}
+label.f{display:block;margin-top:14px;font-weight:500;font-size:14px}
+textarea{display:block;width:100%;min-height:84px;margin-top:6px;font:inherit;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);resize:vertical}
+textarea:focus{outline:2px solid var(--ac);outline-offset:1px}
+.go{margin-top:14px;font:inherit;font-weight:600;border:0;background:var(--ac);color:#fff;padding:10px 28px;border-radius:9px;cursor:pointer}.go:disabled{opacity:.6;cursor:wait}
+.fn{font-size:13px;margin-top:10px}.rep{border-top:1px solid var(--line);padding:10px 0}.rep:first-of-type{border-top:0}.ans{white-space:pre-wrap}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.tile{border:1px solid var(--line);border-radius:12px;padding:16px;background:var(--card)}
+.lbl{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);font-weight:600}.big{font-size:24px;font-weight:700;margin:4px 0}
+.up{color:var(--up)}.dn{color:var(--dn)}.row{display:flex;justify-content:space-between;padding:3px 0}
+.bar{height:6px;background:var(--line);border-radius:9px;overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;background:var(--ac)}
+.note{border-left:3px solid var(--dn);background:var(--bg);padding:10px 14px;border-radius:6px;margin:14px 0}
+.thumbs{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px}.thumbs figure{margin:0;min-width:210px;max-width:210px;font-size:13px}
+.thumbs img{width:100%;border-radius:8px;border:1px solid var(--line)}.sk{height:120px;border-radius:8px;background:var(--line)}
+.msg{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--acs)}.msg.err{background:var(--bg);border:1px solid var(--dn);color:var(--dn)}
+.prev{max-height:200px;max-width:100%;border-radius:8px;margin-top:14px;border:1px solid var(--line)}
+header{background:linear-gradient(135deg,#0f172a,#1e1b4b);border:0}.logo{color:#fff}.logo b{color:#a5b4fc}
+header .pill{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#c7d2fe}
+.seg button.on{background:var(--ac);color:#fff}.drop{background:var(--acs);border-color:var(--ac)}.drop:hover,.drop.over{background:var(--card)}
+.tile{border-top:3px solid var(--ac)}.tile:nth-child(2){border-top-color:#0891b2}.tile:nth-child(3){border-top-color:#d97706}
+.bar i{background:linear-gradient(90deg,var(--ac),#06b6d4)}.card{border-top:3px solid var(--ac)}
+.kb{border-top:1px solid var(--line);margin-top:12px;padding-top:10px;font-size:14px}.kb div{margin:6px 0}
+footer{padding:8px 0 40px;font-size:13px;color:var(--mut)}
+</style></head><body>
+<header><div class="w top"><div class="logo">Chart<b>Pattern</b> Hub</div><span class="pill" id="cnt">Loading…</span></div></header>
+<main class="w">
+<div class="seg"><button id="t1" class="on">Analyze a chart photo</button><button id="t2">Contribute</button></div>
+
+<section id="p1"><div class="card"><h2>Analyze a chart</h2>
+<div class="mut">Upload a chart (image, PDF, CSV or JSON), add a message if you like, then press Submit. If you type a question, the bot answers only that question. If you leave the message empty, you get the full analysis: pattern, price movement, stop-loss and profit targets, support and resistance, trend direction, RSI and MACD entry signals, and volatility from Bollinger Bands and moving averages. You can also ask a question without uploading anything.</div>
+<label class="drop" id="z1"><input type="file" accept="image/*,.pdf,.csv,.json,.txt,.md"><div><b>Click to upload</b> or drag and drop</div><div class="mut">Images, PDF, CSV or JSON price data</div></label>
+<img class="prev" id="prev" alt="" hidden>
+<div class="mut fn" id="fn"></div>
+<label class="f" for="ask">Your message (optional)</label>
+<textarea id="ask" maxlength="500" placeholder="Ask anything, about this chart or any other question. Leave it empty for a full chart analysis."></textarea>
+<button class="go" id="go" type="button">Submit</button></div>
+<div id="res"></div></section>
+
+<section id="p2" hidden><div class="card"><h2>Contribute to the database</h2>
+<div class="mut">Upload a chart image, or a book/notes PDF or TXT. The system reads the pattern diagram and the written text (rules, success and return figures, stop-loss and target guidance) and saves both, so future analysis is smarter. No forms to fill in. Uploads are public. Up to about 64,000 characters of text (roughly 30 pages) are read per upload, so split bigger books.</div>
+<label class="drop" id="z2"><input type="file" accept="image/*,.pdf,.csv,.json,.txt,.md"><div><b>Click to upload</b> or drag and drop</div><div class="mut">Images, PDF, CSV or JSON price data</div></label>
+<div id="msg"></div></div></section>
+
+<footer>Educational use only, not financial advice. Data comes from unverified public uploads and automatic extraction can be wrong. Past patterns do not predict future prices. Only upload files you have the right to share.</footer>
+</main>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const $=s=>document.querySelector(s),N=48,W=1000;
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function api(u,o){const r=await fetch(u,o),t=await r.text();let j;
+  try{j=JSON.parse(t)}catch{throw new Error('The server functions are not reachable (got a web page, status '+r.status+'). Deploy the whole project with the Netlify CLI or Git, not drag-and-drop, and set ANTHROPIC_API_KEY.')}
+  if(!r.ok)throw new Error(j.error||'Request failed ('+r.status+')');return j}
+let db=[],lastQ=null,lastId=null;
+async function refresh(){try{db=await api('/api/patterns');let kn=0;try{kn=(await api('/api/knowledge')).reduce((a,k)=>a+k.n,0)}catch{}$('#cnt').textContent=db.length+' patterns · '+kn+' knowledge notes'}catch{$('#cnt').textContent='Database unavailable'}}
+refresh();
+const tab=n=>[1,2].forEach(i=>{$('#p'+i).hidden=i!=n;$('#t'+i).classList.toggle('on',i==n)});
+[1,2].forEach(i=>$('#t'+i).onclick=()=>tab(i));
+function zone(id,cb){const z=$(id),i=z.querySelector('input');i.onchange=()=>i.files[0]&&cb(i.files[0]);
+  z.ondragover=e=>{e.preventDefault();z.classList.add('over')};z.ondragleave=()=>z.classList.remove('over');
+  z.ondrop=e=>{e.preventDefault();z.classList.remove('over');e.dataTransfer.files[0]&&cb(e.dataTransfer.files[0])}}
+
+function series(t,name){let v;
+  if(/\.json$/i.test(name)){const j=JSON.parse(t),a=Array.isArray(j)?j:j.data||j.candles||[];v=a.map(r=>typeof r==='number'?r:Array.isArray(r)?+(r[4]??r[r.length-1]):+(r.close??r.c??r.Close))}
+  else{const L=t.trim().split(/\r?\n/),h=L[0].split(/[,;\t]/).map(x=>x.trim().toLowerCase()),ci=h.includes('close')?h.indexOf('close'):h.length-1;v=L.slice(1).map(l=>+l.split(/[,;\t]/)[ci])}
+  v=v.filter(Number.isFinite);if(v.length<20)throw new Error('Need at least 20 numeric price rows.');return v}
+// Any supported file -> canvas (PDF: page 1) plus extracted text
+async function toCanvas(f){
+  const c=document.createElement('canvas');let text='',full='';
+  if(f.type==='application/pdf'||/\.pdf$/i.test(f.name)){
+    const pdf=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise,pg=await pdf.getPage(1),v=pg.getViewport({scale:W/pg.getViewport({scale:1}).width});
+    c.width=v.width;c.height=v.height;await pg.render({canvasContext:c.getContext('2d'),viewport:v}).promise;
+    text=(await pg.getTextContent()).items.map(i=>i.str).join(' ').slice(0,3000);
+    for(let i=1;i<=Math.min(pdf.numPages,60)&&full.length<64000;i++)full+=(await(await pdf.getPage(i)).getTextContent()).items.map(x=>x.str).join(' ')+'\n';
+  }else if(f.type.startsWith('image/')){
+    const im=await new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>no(new Error('This image could not be opened.'));i.src=URL.createObjectURL(f)});
+    const s=Math.min(1,W/im.width);c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);
+    const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);
+  }else if(/\.(txt|md)$/i.test(f.name)){
+    full=(await f.text()).slice(0,64000);return{c:null,text:'',full};
+  }else if(/\.(csv|json)$/i.test(f.name)){
+    const t=await f.text(),v=series(t,f.name).slice(-2000),lo=Math.min(...v),hi=Math.max(...v);c.width=1000;c.height=500;
+    const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,1000,500);x.strokeStyle='#1d4ed8';x.lineWidth=4;x.beginPath();
+    v.forEach((p,i)=>{const X=20+i*960/(v.length-1),Y=480-(p-lo)/((hi-lo)||1)*460;i?x.lineTo(X,Y):x.moveTo(X,Y)});x.stroke();text=t.slice(0,3000);
+  }else throw new Error('Unsupported file type. Use an image, PDF, CSV, JSON, TXT or MD.');
+  return{c,text,full};
+}
+// Shape descriptor: ink-weighted vertical centroid (price path) in 48 columns, z-normalised
+function describe(src){
+  const w=240,h=160,c=document.createElement('canvas');c.width=w;c.height=h;
+  const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(src,0,0,w,h);
+  const d=x.getImageData(0,0,w,h).data,g=new Float32Array(w*h);
+  for(let i=0;i<w*h;i++)g[i]=.299*d[i*4]+.587*d[i*4+1]+.114*d[i*4+2];
+  const bg=[...g].sort((a,b)=>a-b)[g.length>>1];let cur=[];
+  for(let k=0;k<N;k++){let s=0,m=0;for(let xx=Math.floor(k*w/N);xx<Math.floor((k+1)*w/N);xx++)for(let y=0;y<h;y++){const v=Math.abs(g[y*w+xx]-bg);if(v>40){s+=v*(h-y);m+=v}}cur.push(m?s/m/h:null)}
+  if(cur.filter(v=>v!==null).length<N/2)throw new Error('No chart line found in this file.');
+  let last=cur.find(v=>v!==null);cur=cur.map(v=>(v===null?v=last:last=v,v));
+  const mu=cur.reduce((a,b)=>a+b)/N,sd=Math.sqrt(cur.reduce((a,b)=>a+(b-mu)**2,0)/N)||1,t=document.createElement('canvas');
+  t.width=200;t.height=120;t.getContext('2d').drawImage(src,0,0,200,120);
+  return{curve:cur.map(v=>(v-mu)/sd),thumb:t.toDataURL('image/jpeg',.6)};
+}
+const dot=(a,b)=>a.reduce((s,v,i)=>s+v*b[i],0)/N;
+
+// Analyze tab: choosing a file only loads it; nothing is sent until Submit is pressed
+let cur=null;
+zone('#z1',async f=>{const out=$('#res');out.innerHTML='';
+  try{const r=await toCanvas(f);if(!r.c)throw new Error('Text files can only be added in the Contribute tab.');cur=r;$('#prev').src=r.c.toDataURL('image/jpeg',.7);$('#prev').hidden=false;$('#fn').textContent='Ready: '+f.name+'. Press Submit to analyze.'}
+  catch(e){cur=null;$('#prev').hidden=true;$('#fn').textContent='';out.innerHTML=`<div class="msg err">${esc(e.message)}</div>`}});
+$('#ask').onkeydown=e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey))$('#go').click()};
+$('#go').onclick=async()=>{const out=$('#res'),btn=$('#go'),q=$('#ask').value.trim();
+  if(!cur&&!q){out.innerHTML='<div class="msg err">Upload a chart file or type a question first.</div>';return}
+  btn.disabled=true;out.innerHTML=`<div class="msg">${q?'Thinking…':'Reading and matching…'}</div>`;
+  const post=b=>api('/api/analyze',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(b)});
+  try{const body={question:q,text:cur?cur.text:''};if(cur)body.image=cur.c.toDataURL('image/jpeg',.8);
+    if(q)out.innerHTML=answerHTML(await post(body)); // a question: show only its answer
+    else{const idp=post(body).catch(e=>({error:e.message}));await refresh();lastQ=describe(cur.c).curve;lastId=await idp;out.innerHTML=await render()} // no question: full analysis
+  }catch(e){out.innerHTML=`<div class="msg err">${esc(e.message)}</div>`}
+  finally{btn.disabled=false}};
+
+zone('#z2',async f=>{const m=$('#msg'),ok=[],bad=[];m.innerHTML='<div class="msg">Reading file… this can take a few seconds.</div>';
+  const post=(u,b)=>api(u,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(b)});
+  try{const{c,text,full}=await toCanvas(f);
+    if(full.trim().length>300){let n=0;const row=()=>`<div class="row"><span>Knowledge notes saved</span><b>${n}</b></div>`;
+      try{const ch=[];for(let i=0;i<full.length&&ch.length<8;i+=8000)ch.push(full.slice(i,i+8000));
+        for(let i=0;i<ch.length;i++){m.innerHTML=`<div class="msg">Reading the text and saving knowledge notes (${i+1}/${ch.length})…</div>`;n+=(await post('/api/knowledge',{source:f.name,text:ch[i]})).saved}
+        ok.push(row())}
+      catch(e){if(n)ok.push(row());bad.push('Text knowledge: '+e.message)}}
+    if(c){try{const d=describe(c),j=await post('/api/patterns',{image:c.toDataURL('image/jpeg',.8),text,curve:d.curve,thumb:d.thumb}),p=j.record;
+      ok.push(`<div class="row"><span>Pattern saved</span><b>${esc(p.name)} · ${p.dir}</b></div><div class="row"><span>Stop-loss / target</span><b>${p.stop?p.stop+'%':'n/a'} / ${p.target?p.target+'%':'n/a'}</b></div>${p.notes?`<div class="mut">${esc(p.notes)}</div>`:''}`)}
+      catch(e){bad.push('Pattern diagram: '+e.message)}}
+    refresh();
+    m.innerHTML=ok.length?`<div class="msg"><b>Saved to the database.</b>${ok.join('')}${bad.length?`<div class="mut">Skipped: ${esc(bad.join(' · '))}</div>`:''}</div>`:`<div class="msg err">${esc(bad.join(' · ')||'Nothing could be read from this file.')}</div>`}
+  catch(e){m.innerHTML=`<div class="msg err">${esc(e.message)}</div>`}});
+async function render(){
+  const q=lastQ,G=guide(lastId);
+  const m=db.map(r=>({r,s:dot(q,r.curve)})).filter(o=>o.s>.5).sort((a,b)=>b.s-a.s).slice(0,7);
+  if(!m.length)return G+'<div class="card">No similar community patterns yet. Use the Contribute tab to add some.</div>';
+  const vote=f=>{const v={};m.forEach(o=>{const k=f(o.r);v[k]=(v[k]||0)+o.s**2});const t=Object.values(v).reduce((a,b)=>a+b),[k,x]=Object.entries(v).sort((a,b)=>b[1]-a[1])[0];return[k,x/t]};
+  const[pk,pp]=vote(r=>r.name.toLowerCase()),[dir,dp]=vote(r=>r.dir),pname=m.find(o=>o.r.name.toLowerCase()===pk).r.name,L=dir==='long';
+  const same=m.filter(o=>o.r.dir===dir),lv=same.filter(o=>o.r.stop&&o.r.target),lw=lv.reduce((a,o)=>a+o.s,0),avg=k=>lv.reduce((a,o)=>a+o.r[k]*o.s,0)/lw;
+  const kn=same.filter(o=>o.r.outcome!=='unknown'),kw=kn.reduce((a,o)=>a+o.s,0),hit=kn.length?kn.filter(o=>o.r.outcome==='target').reduce((a,o)=>a+o.s,0)/kw:null;
+  const stop=lv.length&&avg('stop'),tg=lv.length&&avg('target');
+  let h=G+`<div class="tiles">
+  <div class="tile"><div class="lbl">Community pattern match</div><div class="big">${esc(pname)}</div><div class="mut">${(pp*100).toFixed(0)}% of weighted matches · best match ${(m[0].s*100).toFixed(0)}%</div><div class="bar"><i style="width:${pp*100}%"></i></div></div>
+  <div class="tile"><div class="lbl">Likely movement</div><div class="big ${L?'up':'dn'}">${L?'▲ Up':'▼ Down'}${lv.length?' ~'+tg.toFixed(1)+'%':''}</div><div class="mut">${(dp*100).toFixed(0)}% of matches agree${hit!==null?` · ${(hit*100).toFixed(0)}% of known outcomes hit target`:''}</div><div class="bar"><i style="width:${dp*100}%"></i></div></div>
+  <div class="tile"><div class="lbl">Suggested levels</div>${lv.length?`<div class="row"><span>Stop-loss</span><b>${stop.toFixed(1)}%</b></div><div class="row"><span>Profit target</span><b>${tg.toFixed(1)}%</b></div><div class="row"><span>Reward : risk</span><b>${(tg/stop).toFixed(2)}</b></div>`:'<div class="mut">Matched entries have no extracted levels.</div>'}</div></div>`;
+  if(m.length<5)h+=`<div class="note">Only ${m.length} similar pattern${m.length>1?'s':''} found. Treat this as very low confidence.</div>`;
+  h+=`<div class="card" style="margin-top:16px"><h2>Closest matches</h2><div class="thumbs">${m.slice(0,5).map((o,i)=>`<figure><div class="sk" id="m${i}"></div><figcaption><b>${esc(o.r.name)}</b> · ${(o.s*100).toFixed(0)}% match<br>${o.r.dir}${o.r.stop?` · stop ${o.r.stop}% / target ${o.r.target}%`:''}${o.r.asset?'<br>'+esc(o.r.asset):''}${o.r.notes?'<br><span class="mut">'+esc(o.r.notes)+'</span>':''}</figcaption></figure>`).join('')}</div></div>`;
+  setTimeout(()=>m.slice(0,5).forEach(async(o,i)=>{try{const r=await(await fetch('/api/patterns?id='+o.r.id)).json();
+    if(/^data:image\/jpeg;base64,/.test(r.thumb)){const im=new Image();im.src=r.thumb;im.alt=r.name;$('#m'+i).replaceWith(im)}}catch{}}),0);
+  return h;
+}
+
+function kbHTML(a){return a&&a.length?`<div class="kb"><b>From uploaded books and notes</b>${a.map(n=>`<div>${[n.rules&&'<b>Rules:</b> '+esc(n.rules),n.reliability&&'<b>Reliability:</b> '+esc(n.reliability),n.stop&&'<b>Stop:</b> '+esc(n.stop),n.target&&'<b>Target:</b> '+esc(n.target),n.notes&&esc(n.notes)].filter(Boolean).join(' · ')} <span class="mut">(${esc(n.src||'')})</span></div>`).join('')}</div>`:''}
+const REP=[['Expected price movement','movement'],['Stop-loss & profit target','stop_target'],['Support & resistance levels','support_resistance'],['Trend direction','trend'],['Entry signals (RSI & MACD)','entry_signals'],['Volatility (Bollinger Bands & Moving Averages)','volatility'],['Additional knowledge','extra']];
+function reportHTML(r){const rows=REP.filter(([,k])=>r&&r[k]).map(([t,k])=>`<div class="rep"><div class="lbl">${t}</div><div>${esc(r[k])}</div></div>`).join('');return rows?`<div class="card"><h2>Chart analysis</h2>${rows}</div>`:''}
+function answerHTML(j){return`<div class="card"><div class="ans">${esc(j.answer||'No answer was returned, please try again.')}</div></div>`}
+function guide(I){const B={bullish:'up',bearish:'dn'};if(!I)return'';if(I.error)return`<div class="card mut">${esc(I.error)}</div>`;if(!I.pattern)return`<div class="card mut">${esc('No library pattern clearly matches this chart. '+(I.reason||''))}</div>`+reportHTML(I.report);const p=I.pattern;
+  return`<div class="card"><div class="lbl">Identified pattern · ${I.confidence}% confidence</div><div class="big">${esc(p.name)} <span class="${B[p.bias]||'mut'}" style="font-size:15px">${esc(p.bias)} ${esc(p.type)}</span></div><p>${esc(p.desc)}</p><p><b>Textbook stop:</b> ${esc(p.stop)}<br><b>Textbook target:</b> ${esc(p.target)}</p>${kbHTML(p.notes)}<div class="mut">${esc(I.reason||'')}</div></div>`+reportHTML(I.report)}
+
+</script></body></html>
